@@ -17,4 +17,4 @@ https://www.youtube.com/watch?v=_AlnCiPDz30
 
 ## Project Report
 The project report is provided in the repo. Here's a google drive link just in case: 
-...
+https://drive.google.com/file/d/1i5Fs3NX_dGx0Y2GqUYbGXro0qpDJZAE2/view?usp=sharing
