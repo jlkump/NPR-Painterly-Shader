@@ -3,7 +3,7 @@
 ## Repo Summary
 This contains all the code for my NPR shader in Opengl. 
 However, I wasn't sure how to provide all the things necessary for compiliation, 
-as the project I was using for reference is fairly large and I was unsure what files
+as the project I was using for reference was fairly large and I was unsure what files
 would be important. Also since the reference project is fairly large, I didn't want to
 have a unnecessarily bulky repo that would be difficult to navigate, so I've placed all
 the important files I coded here. I have placed the files from the reference
