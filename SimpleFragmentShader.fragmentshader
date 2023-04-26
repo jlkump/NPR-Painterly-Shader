@@ -1,0 +1,66 @@
+#version 330
+
+// Again, just using the code from lesson 8 - Texture and Shading
+// With some modifications to ignore what we don't care about
+
+
+// Interpolated values from the vertex shaders
+in vec2 UV;
+in vec3 Position_worldspace;
+in vec3 Normal_cameraspace;
+in vec3 EyeDirection_cameraspace;
+in vec3 LightDirection_cameraspace;
+in vec2 Tangent_screenspace;
+in vec2 Bitangent_screenspace;
+
+// Ouput data
+layout(location = 0) out vec3 color;
+layout(location = 1) out vec2 tangentFlowDirection;
+layout(location = 2) out vec2 bitangentFlowDirection;
+
+
+// Values that stay constant for the whole mesh.
+uniform sampler2D myTextureSampler;
+uniform mat4 MV;
+uniform vec3 LightPosition_worldspace;
+
+void main(){
+
+	tangentFlowDirection = Tangent_screenspace;
+	bitangentFlowDirection = Bitangent_screenspace;
+
+	// Material properties
+	vec3 MaterialDiffuseColor = texture( myTextureSampler, UV ).rgb;
+
+	float distance = length( LightPosition_worldspace - Position_worldspace );
+	vec3 n = normalize( Normal_cameraspace );
+	vec3 l = normalize( LightDirection_cameraspace );
+	float cosTheta = clamp( dot( n,l ), 0,1 );
+
+	vec3 E = normalize(EyeDirection_cameraspace);
+	vec3 R = reflect(-l,n);
+	// Cosine of the angle between the Eye vector and the Reflect vector,
+	float cosAlpha = clamp( dot( E,R ), 0,1 );
+	
+	float alpha = 0.2;
+	float beta = 0.6;
+	float gamma = 0.5;
+
+	vec3 k_blue = vec3(0.3, 0.0, 0.5);
+	vec3 k_yellow = vec3(0.5, 0.5, 0.0);
+
+	vec3 k_blue_inverse = vec3(1.0, 1.0, 0.0);
+	vec3 k_yellow_inverse = vec3(0.0, 0.0, 1.0);
+
+	// Standard lighting for NPR from Gooch
+	vec3 k_warm = k_yellow + MaterialDiffuseColor * alpha;
+	vec3 k_cool = k_blue + MaterialDiffuseColor * beta;
+
+	// My modified version
+	// vec3 k_warm = MaterialDiffuseColor - alpha * k_yellow_inverse + k_yellow * gamma;
+	// vec3 k_cool = MaterialDiffuseColor - beta * k_blue_inverse + k_blue + k_blue * gamma;
+
+	float interp_factor = 0.5 * ((1 + cosTheta) / 2) + 0.5 * ((1 + cosAlpha) / 2);
+	color = interp_factor * k_warm + (1.0 - interp_factor) * k_cool;
+
+}

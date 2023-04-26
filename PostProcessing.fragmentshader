@@ -1,0 +1,79 @@
+#version 330 core
+
+in float useBrushStroke;
+// in vec2 ScreenUV;
+in vec2 ModelUV;
+in vec3 BrushColor;
+
+out vec3 color;
+
+uniform sampler2D renderedTexture;
+uniform sampler2D brushTexture;
+uniform sampler2D brushFlowmapTexture;
+
+int min_index(vec3 color) {
+    float lowest = 2.0;
+    int index = -1;
+    if (color.r < lowest) {
+        lowest = color.r;
+        index = 0;
+    }
+    if (color.g < lowest) {
+        lowest = color.g;
+        index = 1;
+    }
+    if (color.b < lowest) {
+        lowest = color.b;
+        index = 2;
+    }
+    return index;
+}
+
+int max_index(vec3 color) {
+    float highest = 0.0;
+    int index = -1;
+    if (color.r >= highest) {
+        highest = color.r;
+        index = 0;
+    }
+    if (color.g > highest) {
+        highest = color.g;
+        index = 1;
+    }
+    if (color.b > highest) {
+        highest = color.b;
+        index = 2;
+    }
+    return index;
+}
+
+vec3 saturateColor(vec3 color) {
+    int minimum_ind = min_index(color);
+    int maximum_ind = max_index(color);
+    if (minimum_ind != -1 && maximum_ind != -1) {
+        float luminance = (color[minimum_ind] + color[maximum_ind]) / 2.0;
+        float saturationRange = luminance;
+        float maxChange = min(1.0 - color[maximum_ind], color[minimum_ind]);
+        float saturationAmount = min(saturationRange * 0.1, maxChange);
+        color[minimum_ind] = color[minimum_ind] - saturationAmount;
+        color[maximum_ind] = color[maximum_ind] + saturationAmount;
+    }
+    return color;
+}
+
+void main() {
+    if (useBrushStroke >= 0.5) {
+        discard;
+    }
+
+    float brushValue = 1.0 - texture(brushTexture, ModelUV).r;
+    if (brushValue <= 0.3) {
+        discard;
+    }
+    vec3 primaryBrushColor = BrushColor.rgb * brushValue;
+    primaryBrushColor = saturateColor(primaryBrushColor);
+    vec3 secondaryBrushColor = (1.0 - brushValue) * BrushColor.rgb;
+
+    // secondaryBrushColor = vec3(secondaryBrushColor.r * 0.3, secondaryBrushColor.g * 0.55, secondaryBrushColor.b * 0.1);
+    color = primaryBrushColor + secondaryBrushColor;
+}
