@@ -56,10 +56,6 @@ void main(){
 	vec3 k_warm = k_yellow + MaterialDiffuseColor * alpha;
 	vec3 k_cool = k_blue + MaterialDiffuseColor * beta;
 
-	// My modified version
-	// vec3 k_warm = MaterialDiffuseColor - alpha * k_yellow_inverse + k_yellow * gamma;
-	// vec3 k_cool = MaterialDiffuseColor - beta * k_blue_inverse + k_blue + k_blue * gamma;
-
 	float interp_factor = 0.5 * ((1 + cosTheta) / 2) + 0.5 * ((1 + cosAlpha) / 2);
 	color = interp_factor * k_warm + (1.0 - interp_factor) * k_cool;
 
